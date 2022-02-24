@@ -6,25 +6,17 @@ from django.db import models
 class CustomUser(BaseUserManager):
     use_in_migrations = True
 
-    def create_user(self, email, password, first_name, last_name, *args, **kwargs):
+    def create_user(self, email, password, *args, **kwargs):
         email = self.normalize_email(email)
-        first_name = self.normalize_first_name(first_name)
-        last_name = self.normalize_last_name(last_name)
         user = self.model(email=email)
-        user = self.model(first_name=first_name)
-        user = self.model(last_name=last_name)
         user.set_password(password)
         user.create_activation_code()
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, password, first_name, last_name, *args, **kwargs):
+    def create_superuser(self, email, password, *args, **kwargs):
         email = self.normalize_email(email)
-        first_name = self.normalize_first_name(first_name)
-        last_name = self.normalize_last_name(last_name)
         user = self.model(email=email)
-        user = self.model(first_name=first_name)
-        user = self.model(last_name=last_name)
         user.set_password(password)
         user.is_active = True
         user.is_staff = True
@@ -36,11 +28,13 @@ class CustomUser(BaseUserManager):
 class User(AbstractUser):
     username = None
     email = models.EmailField(unique=True)
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
     is_active = models.BooleanField(default=False)
     activation_code = models.CharField(max_length=50, blank=True)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ['first_name', 'last_name']
 
     objects = CustomUser()
 
